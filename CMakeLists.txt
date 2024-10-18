@@ -4,7 +4,7 @@ PROJECT(queue_system)
 set(CMAKE_CXX_STANDARD 26)
 
 if(${MSVC})
-#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:WinMainCRTStartup")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:WinMainCRTStartup")
 endif()
 
 find_package(wxWidgets CONFIG REQUIRED)
