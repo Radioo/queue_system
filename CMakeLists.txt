@@ -21,3 +21,7 @@ target_link_libraries(queue_system PRIVATE wx::core)
 if(UNIX)
     target_link_libraries(queue_system PRIVATE X11)
 endif()
+
+if(WIN32)
+    target_sources(queue_system PRIVATE queue_system.manifest)
+endif()

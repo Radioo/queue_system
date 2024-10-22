@@ -1,5 +1,8 @@
+#pragma once
+
 #include <wx/wx.h>
 #include <wx/valnum.h>
+#include <wx/dataview.h>
 
 namespace queue_system::frame {
     class main final : public wxFrame {
@@ -9,10 +12,15 @@ namespace queue_system::frame {
     private:
         wxPanel* app_panel;
 
+        wxDataViewListCtrl* data_view;
+
         float input1_value;
         float input2_value;
         float input3_value;
+        float input4_value;
 
         static wxFloatingPointValidator<float> get_input_validator(float* input);
+
+        void add_initial_data_values();
     };
 }
