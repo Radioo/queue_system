@@ -14,13 +14,13 @@ namespace queue_system::frame {
 
         wxDataViewListCtrl* data_view;
 
-        float input1_value;
-        float input2_value;
-        float input3_value;
-        float input4_value;
+        float input1_value = 0;
+        float input2_value = 0;
+        float input3_value = 0;
+        float input4_value = 0;
 
         static wxFloatingPointValidator<float> get_input_validator(float* input);
 
-        void add_initial_data_values();
+        void add_initial_data_values() const;
     };
 }

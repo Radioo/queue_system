@@ -1,6 +1,11 @@
+#include <map>
+
 #include "queue_system/frame/main.hpp"
 
-queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy", wxDefaultPosition,
+#include <ranges>
+#include <queue_system/model/data_type.hpp>
+
+queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy M/M/m/FiFo/N/F", wxDefaultPosition,
                                             wxSize(600, 800)) {
     app_panel = new wxPanel(this, wxID_ANY);
 
@@ -75,18 +80,19 @@ wxFloatingPointValidator<float> queue_system::frame::main::get_input_validator(f
     return {6, input, wxNUM_VAL_NO_TRAILING_ZEROES};
 }
 
-void queue_system::frame::main::add_initial_data_values() {
-    static std::vector<std::tuple<std::string, std::string>> initial_items = {
-        {"Współczynnik obciążenia stanowiska obsługi", "0"},
-        {"Prawdopodobieństwo p0", "0"},
-        {"Prawdopodobieństwo p1", "0"},
-        {"Prawdopodobieństwo p2", "0"},
+void queue_system::frame::main::add_initial_data_values() const {
+    static std::map<model::data_type, std::tuple<std::string, std::string>> initial_items = {
+        {model::data_type::LOAD_FACTOR, {"Współczynnik obciążenia stanowiska obsługi", "0"}},
+        {model::data_type::PROBABILITY_P0, {"Prawdopodobieństwo p0", "0"}},
+        {model::data_type::PROBABILITY_P1, {"Prawdopodobieństwo p1", "0"}},
+        {model::data_type::PROBABILITY_P2, {"Prawdopodobieństwo p2", "0"}},
     };
 
-    for(const auto& [name, value] : initial_items) {
+
+    for(const auto& value : initial_items | std::views::values) {
         wxVector<wxVariant> data;
-        data.push_back(wxVariant(wxString::FromUTF8(name)));
-        data.push_back(wxVariant(wxString::FromUTF8(value)));
+        data.push_back(wxVariant(wxString::FromUTF8(std::get<0>(value))));
+        data.push_back(wxVariant(wxString::FromUTF8(std::get<1>(value))));
 
         data_view->AppendItem(data);
     }
