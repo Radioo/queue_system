@@ -28,6 +28,7 @@ void queue_system::calc::queue::calculate() {
     p = stream_intensity / average_service_intensity;
 
     calculate_probabilities();
+    calculate_average_queue_length();
 }
 
 float queue_system::calc::queue::get_load_factor() const {
@@ -38,16 +39,24 @@ const std::array<double, queue_system::calc::queue::PROBABILITY_COUNT>& queue_sy
     return probabilities;
 }
 
+double queue_system::calc::queue::get_average_queue_length() const {
+    return average_queue_length;
+}
+
 void queue_system::calc::queue::calculate_probabilities() {
     const auto N_fact = boost::math::factorial<double>(max_requests);
     calculate_p0_probability(N_fact);
 
     for(auto i = 1; i < PROBABILITY_COUNT; i++) {
-        const auto i_fact = boost::math::factorial<double>(i);
-        const auto N_minus_i_fact = boost::math::factorial<double>(max_requests - i);
-        const auto p_to_i_fact = std::pow(p, i);
-
-        probabilities[i] = N_fact / (i_fact * N_minus_i_fact) * p_to_i_fact * probabilities[0];
+        if(i >= 1 && i <= service_channels) {
+            probabilities[i] = calculate_less_or_equal_m_probability(i, N_fact);
+        }
+        else if(i >= service_channels + 1 && i <= max_requests) {
+            probabilities[i] = calculate_more_than_m_probability(i, N_fact);
+        }
+        else {
+            probabilities[i] = 0;
+        }
     }
 }
 
@@ -73,4 +82,30 @@ void queue_system::calc::queue::calculate_p0_probability(const double N_fact) {
     }
 
     probabilities[0] = std::pow(first_sum + second_sum, -1);
+}
+
+double queue_system::calc::queue::calculate_less_or_equal_m_probability(const std::uint64_t i, const double N_fact) const {
+    const auto i_fact = boost::math::factorial<double>(i);
+    const auto N_minus_i_fact = boost::math::factorial<double>(max_requests - i);
+    const auto p_to_i_fact = std::pow(p, i);
+
+    return N_fact / (i_fact * N_minus_i_fact) * p_to_i_fact * probabilities[0];
+}
+
+double queue_system::calc::queue::calculate_more_than_m_probability(std::uint64_t i, double N_fact) const {
+    const auto m_fact = boost::math::factorial<double>(service_channels);
+    const auto m_to_i_minus_m = std::pow(service_channels, i - service_channels);
+    const auto N_minus_i_fact = boost::math::factorial<double>(max_requests - i);
+    const auto p_to_i = std::pow(p, i);
+
+    return N_fact / (m_fact * m_to_i_minus_m * N_minus_i_fact) * p_to_i * probabilities[0];
+}
+
+void queue_system::calc::queue::calculate_average_queue_length() {
+    double sum = 0;
+    for(auto i = 0; i <= 3; i++) {
+        sum += i * probabilities[2 + i];
+    }
+
+    average_queue_length = sum;
 }

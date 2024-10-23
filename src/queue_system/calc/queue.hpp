@@ -9,7 +9,7 @@ namespace queue_system::calc {
     public:
         queue(float stream_intensity, float average_service_intensity, std::uint64_t service_channels, std::uint64_t max_requests);
 
-        static constexpr std::uint8_t PROBABILITY_COUNT = 3;
+        static constexpr std::uint8_t PROBABILITY_COUNT = 6;
 
         void set_stream_intensity(float value);
         void set_average_service_intensity(float value);
@@ -19,6 +19,7 @@ namespace queue_system::calc {
         void calculate();
         [[nodiscard]] float get_load_factor() const;
         [[nodiscard]] const std::array<double, PROBABILITY_COUNT>& get_probabilities() const;
+        [[nodiscard]] double get_average_queue_length() const;
 
     private:
         /// [λ] Intensywność strumienia zgłoszeń
@@ -34,8 +35,12 @@ namespace queue_system::calc {
         float load_factor = 0;
         /// [𝑝] ???
         float p = 0;
+        double average_queue_length = 0;
 
         void calculate_probabilities();
         void calculate_p0_probability(double N_fact);
+        [[nodiscard]] double calculate_less_or_equal_m_probability(std::uint64_t i, double N_fact) const;
+        [[nodiscard]] double calculate_more_than_m_probability(std::uint64_t i, double N_fact) const;
+        void calculate_average_queue_length();
     };
 }

@@ -2,6 +2,7 @@
 #include <ranges>
 
 #include "queue_system/frame/main.hpp"
+#include "queue_system/model/data_type_col.hpp"
 
 queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy M/M/m/FiFo/N/F", wxDefaultPosition,
                                             wxSize(600, 800)) {
@@ -96,10 +97,13 @@ wxIntegerValidator<std::uint64_t> queue_system::frame::main::get_uint_input_vali
 
 void queue_system::frame::main::add_initial_data_values() const {
     static std::map<model::data_type, std::tuple<std::string, std::string>> initial_items = {
-        {model::data_type::LOAD_FACTOR, {"Współczynnik obciążenia stanowiska obsługi", "0"}},
         {model::data_type::PROBABILITY_P0, {"Prawdopodobieństwo p0", "0"}},
         {model::data_type::PROBABILITY_P1, {"Prawdopodobieństwo p1", "0"}},
         {model::data_type::PROBABILITY_P2, {"Prawdopodobieństwo p2", "0"}},
+        {model::data_type::PROBABILITY_P3, {"Prawdopodobieństwo p3", "0"}},
+        {model::data_type::PROBABILITY_P4, {"Prawdopodobieństwo p4", "0"}},
+        {model::data_type::PROBABILITY_P5, {"Prawdopodobieństwo p5", "0"}},
+        {model::data_type::AVERAGE_QUEUE_LENGTH, {"Średnia długość kolejki", "0"}},
     };
 
 
@@ -124,10 +128,14 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
     set_data_value(model::data_type::PROBABILITY_P0, probabilities[0]);
     set_data_value(model::data_type::PROBABILITY_P1, probabilities[1]);
     set_data_value(model::data_type::PROBABILITY_P2, probabilities[2]);
+    set_data_value(model::data_type::PROBABILITY_P3, probabilities[3]);
+    set_data_value(model::data_type::PROBABILITY_P4, probabilities[4]);
+    set_data_value(model::data_type::PROBABILITY_P5, probabilities[5]);
+    set_data_value(model::data_type::AVERAGE_QUEUE_LENGTH, queue.get_average_queue_length());
 }
 
 void queue_system::frame::main::set_data_value(model::data_type data_type, const double value) const {
     const auto row = static_cast<int>(data_type);
     const auto value_str = std::to_string(value);
-    data_view->SetValue(value_str, row, 1);
+    data_view->SetValue(value_str, row, static_cast<int>(model::data_type_col::VALUE));
 }
