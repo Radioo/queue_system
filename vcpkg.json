@@ -1,7 +1,15 @@
 {
-  "name": "main",
-  "version-string": "latest",
-  "dependencies": [
-    "wxwidgets"
-  ]
+    "name": "main",
+    "version-string": "latest",
+    "builtin-baseline": "d567b667adba0e72c5c3931ddbe745b66aa34b73",
+    "dependencies": [
+        {
+            "name": "wxwidgets",
+            "version>=": "3.2.6"
+        },
+        {
+            "name": "boost-math",
+            "version>=": "1.86.0"
+        }
+    ]
 }

@@ -2,7 +2,6 @@
 #include <ranges>
 
 #include "queue_system/frame/main.hpp"
-#include "queue_system/model/data_type.hpp"
 
 queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy M/M/m/FiFo/N/F", wxDefaultPosition,
                                             wxSize(600, 800)) {
@@ -13,8 +12,8 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input1_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input1_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_input_validator(&input1_value));
-    input1_input->SetValue("0");
+                                        get_float_input_validator(&input1_value));
+    input1_input->SetValue("2");
     input1_sizer->Add(input1_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
     auto* input1_text = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("[λ] Intensywność strumienia zgłoszeń"),
@@ -27,8 +26,8 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input2_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input2_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_input_validator(&input2_value));
-    input2_input->SetValue("0");
+                                        get_float_input_validator(&input2_value));
+    input2_input->SetValue("2");
     input2_sizer->Add(input2_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
     auto* input2_text = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("[μ] Średnia intensywność obsługi"),
@@ -41,8 +40,8 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input3_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input3_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_input_validator(&input3_value));
-    input3_input->SetValue("0");
+                                        get_uint_input_validator(&input3_value));
+    input3_input->SetValue("2");
     input3_sizer->Add(input3_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
     auto* input3_text = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("[m] Liczba kanałów obsługi"),
@@ -55,8 +54,8 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input4_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input4_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_input_validator(&input4_value));
-    input4_input->SetValue("0");
+                                        get_uint_input_validator(&input4_value));
+    input4_input->SetValue("5");
     input4_sizer->Add(input4_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
     auto* input4_text = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("[N] Maksymalna liczba zgłoszeń"),
@@ -87,8 +86,12 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     app_panel->Layout();
 }
 
-wxFloatingPointValidator<float> queue_system::frame::main::get_input_validator(float* input) {
+wxFloatingPointValidator<float> queue_system::frame::main::get_float_input_validator(float* input) {
     return {6, input, wxNUM_VAL_NO_TRAILING_ZEROES};
+}
+
+wxIntegerValidator<std::uint64_t> queue_system::frame::main::get_uint_input_validator(std::uint64_t* input) {
+    return {input};
 }
 
 void queue_system::frame::main::add_initial_data_values() const {
@@ -112,8 +115,19 @@ void queue_system::frame::main::add_initial_data_values() const {
 void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
     queue.set_stream_intensity(std::stof(input1_input->GetValue().ToStdString()));
     queue.set_average_service_intensity(std::stof(input2_input->GetValue().ToStdString()));
-    queue.set_service_channels(std::stof(input3_input->GetValue().ToStdString()));
-    queue.set_max_requests(std::stof(input4_input->GetValue().ToStdString()));
+    queue.set_service_channels(std::stoull(input3_input->GetValue().ToStdString()));
+    queue.set_max_requests(std::stoull(input4_input->GetValue().ToStdString()));
 
     queue.calculate();
+
+    const auto& probabilities = queue.get_probabilities();
+    set_data_value(model::data_type::PROBABILITY_P0, probabilities[0]);
+    set_data_value(model::data_type::PROBABILITY_P1, probabilities[1]);
+    set_data_value(model::data_type::PROBABILITY_P2, probabilities[2]);
+}
+
+void queue_system::frame::main::set_data_value(model::data_type data_type, const double value) const {
+    const auto row = static_cast<int>(data_type);
+    const auto value_str = std::to_string(value);
+    data_view->SetValue(value_str, row, 1);
 }
