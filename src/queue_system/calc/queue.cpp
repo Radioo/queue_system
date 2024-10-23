@@ -39,13 +39,19 @@ const std::array<double, queue_system::calc::queue::PROBABILITY_COUNT>& queue_sy
 }
 
 void queue_system::calc::queue::calculate_probabilities() {
-    calculate_p0_probability();
+    const auto N_fact = boost::math::factorial<double>(max_requests);
+    calculate_p0_probability(N_fact);
 
-    for(auto i = 1; i < PROBABILITY_COUNT; i++) {}
+    for(auto i = 1; i < PROBABILITY_COUNT; i++) {
+        const auto i_fact = boost::math::factorial<double>(i);
+        const auto N_minus_i_fact = boost::math::factorial<double>(max_requests - i);
+        const auto p_to_i_fact = std::pow(p, i);
+
+        probabilities[i] = N_fact / (i_fact * N_minus_i_fact) * p_to_i_fact * probabilities[0];
+    }
 }
 
-void queue_system::calc::queue::calculate_p0_probability() {
-    const auto N_fact = boost::math::factorial<double>(max_requests);
+void queue_system::calc::queue::calculate_p0_probability(const double N_fact) {
     const auto m_fact = boost::math::factorial<double>(service_channels);
 
     double first_sum = 0;

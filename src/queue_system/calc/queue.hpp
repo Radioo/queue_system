@@ -36,6 +36,6 @@ namespace queue_system::calc {
         float p = 0;
 
         void calculate_probabilities();
-        void calculate_p0_probability();
+        void calculate_p0_probability(double N_fact);
     };
 }
