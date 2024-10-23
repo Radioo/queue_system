@@ -31,10 +31,6 @@ void queue_system::calc::queue::calculate() {
     calculate_average_queue_length();
 }
 
-float queue_system::calc::queue::get_load_factor() const {
-    return load_factor;
-}
-
 const std::array<double, queue_system::calc::queue::PROBABILITY_COUNT>& queue_system::calc::queue::get_probabilities() const {
     return probabilities;
 }
@@ -103,9 +99,13 @@ double queue_system::calc::queue::calculate_more_than_m_probability(std::uint64_
 
 void queue_system::calc::queue::calculate_average_queue_length() {
     double sum = 0;
-    for(auto i = 0; i <= 3; i++) {
+    for(auto i = 0; i <= max_requests - service_channels; i++) {
         sum += i * probabilities[2 + i];
     }
 
     average_queue_length = sum;
+}
+
+void queue_system::calc::queue::calculate_average_books_being_read() {
+
 }
