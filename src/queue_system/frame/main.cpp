@@ -97,13 +97,18 @@ wxIntegerValidator<std::uint64_t> queue_system::frame::main::get_uint_input_vali
 
 void queue_system::frame::main::add_initial_data_values() const {
     static std::map<model::data_type, std::tuple<std::string, std::string>> initial_items = {
-        {model::data_type::PROBABILITY_P0, {"Prawdopodobieństwo p0", "0"}},
-        {model::data_type::PROBABILITY_P1, {"Prawdopodobieństwo p1", "0"}},
-        {model::data_type::PROBABILITY_P2, {"Prawdopodobieństwo p2", "0"}},
-        {model::data_type::PROBABILITY_P3, {"Prawdopodobieństwo p3", "0"}},
-        {model::data_type::PROBABILITY_P4, {"Prawdopodobieństwo p4", "0"}},
-        {model::data_type::PROBABILITY_P5, {"Prawdopodobieństwo p5", "0"}},
-        {model::data_type::AVERAGE_QUEUE_LENGTH, {"Średnia długość kolejki", "0"}},
+        {model::data_type::PROBABILITY_P0,                     {"Prawdopodobieństwo p0",                         "0"}},
+        {model::data_type::PROBABILITY_P1,                     {"Prawdopodobieństwo p1",                         "0"}},
+        {model::data_type::PROBABILITY_P2,                     {"Prawdopodobieństwo p2",                         "0"}},
+        {model::data_type::PROBABILITY_P3,                     {"Prawdopodobieństwo p3",                         "0"}},
+        {model::data_type::PROBABILITY_P4,                     {"Prawdopodobieństwo p4",                         "0"}},
+        {model::data_type::PROBABILITY_P5,                     {"Prawdopodobieństwo p5",                         "0"}},
+        {model::data_type::AVERAGE_QUEUE_LENGTH,               {"Średnia ilość zgłoszeń oczekujących w kolejce", "0"}},
+        {model::data_type::AVERAGE_OCCUPIED_SERVICE_CHANNELS,  {"Średnia ilość zajętych kanałów obsługi",        "0"}},
+        {model::data_type::ABSOLUTE_ABILITY_TO_OPERATE,        {"Bezwzględną zdolność obsługi systemu",          "0"}},
+        {model::data_type::AVERAGE_APPLICATIONS,               {"Średnia ilość zgłoszeń",                        "0"}},
+        {model::data_type::AVERAGE_APPLICATION_TIME_IN_SYSTEM, {"Średni czas przebywania zgłoszeń w systemie",   "0"}},
+        {model::data_type::AVERAGE_APPLICATION_TIME_IN_QUEUE, {"Średni czas przebywania zgłoszeń w kolejce",   "0"}},
     };
 
 
@@ -132,6 +137,11 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
     set_data_value(model::data_type::PROBABILITY_P4, probabilities[4]);
     set_data_value(model::data_type::PROBABILITY_P5, probabilities[5]);
     set_data_value(model::data_type::AVERAGE_QUEUE_LENGTH, queue.get_average_queue_length());
+    set_data_value(model::data_type::AVERAGE_OCCUPIED_SERVICE_CHANNELS, queue.get_average_occupied_service_channels());
+    set_data_value(model::data_type::ABSOLUTE_ABILITY_TO_OPERATE, queue.get_absolute_ability_to_operate());
+    set_data_value(model::data_type::AVERAGE_APPLICATIONS, queue.get_average_applications());
+    set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_SYSTEM, queue.get_average_application_time_in_system());
+    set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_QUEUE, queue.get_average_application_time_in_queue());
 }
 
 void queue_system::frame::main::set_data_value(model::data_type data_type, const double value) const {

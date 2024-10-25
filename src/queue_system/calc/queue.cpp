@@ -29,6 +29,11 @@ void queue_system::calc::queue::calculate() {
 
     calculate_probabilities();
     calculate_average_queue_length();
+    calculate_average_occupied_service_channels();
+    calculate_absolute_ability_to_operate();
+    calculate_average_applications();
+    calculate_average_application_time_in_system();
+    calculate_average_application_time_in_queue();
 }
 
 const std::array<double, queue_system::calc::queue::PROBABILITY_COUNT>& queue_system::calc::queue::get_probabilities() const {
@@ -106,6 +111,52 @@ void queue_system::calc::queue::calculate_average_queue_length() {
     average_queue_length = sum;
 }
 
-void queue_system::calc::queue::calculate_average_books_being_read() {
+void queue_system::calc::queue::calculate_average_occupied_service_channels() {
+    double first_sum = 0;
+    for(auto r = 0; r <= service_channels - 1; r++) {
+        first_sum += r * probabilities[r];
+    }
 
+    double second_sum = 0;
+    for(auto k = service_channels; k <= max_requests; k++) {
+        second_sum += probabilities[k];
+    }
+
+    average_occupied_service_channels = first_sum + (static_cast<double>(service_channels) * second_sum);
+}
+
+double queue_system::calc::queue::get_average_occupied_service_channels() const {
+    return average_occupied_service_channels;
+}
+
+void queue_system::calc::queue::calculate_absolute_ability_to_operate() {
+    absolute_ability_to_operate = average_occupied_service_channels * stream_intensity;
+}
+
+double queue_system::calc::queue::get_absolute_ability_to_operate() const {
+    return absolute_ability_to_operate;
+}
+
+void queue_system::calc::queue::calculate_average_applications() {
+    average_applications = static_cast<double>(max_requests) - (average_occupied_service_channels / p);
+}
+
+double queue_system::calc::queue::get_average_applications() const {
+    return average_applications;
+}
+
+void queue_system::calc::queue::calculate_average_application_time_in_system() {
+    average_application_time_in_system = average_applications / (stream_intensity * (static_cast<double>(max_requests) - average_applications));
+}
+
+double queue_system::calc::queue::get_average_application_time_in_system() const {
+    return average_application_time_in_system;
+}
+
+void queue_system::calc::queue::calculate_average_application_time_in_queue() {
+    average_application_time_in_queue = average_application_time_in_system - (1 / average_service_intensity);
+}
+
+double queue_system::calc::queue::get_average_application_time_in_queue() const {
+    return average_application_time_in_queue;
 }
