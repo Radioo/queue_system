@@ -17,6 +17,7 @@ namespace queue_system::calc {
         void set_max_requests(std::uint64_t value);
 
         void calculate();
+        [[nodiscard]] double get_relative_service_intensity() const;
         [[nodiscard]] const std::array<double, PROBABILITY_COUNT>& get_probabilities() const;
         [[nodiscard]] double get_average_queue_length() const;
         [[nodiscard]] double get_average_occupied_service_channels() const;
@@ -27,17 +28,17 @@ namespace queue_system::calc {
 
     private:
         /// [λ] Intensywność strumienia zgłoszeń
-        float stream_intensity;
+        double stream_intensity;
         /// [μ] Średnia intensywność obsługi
-        float average_service_intensity;
+        double average_service_intensity;
         /// [m] Liczba kanałów obsługi
         std::uint64_t service_channels;
         /// [N] Maksymalna liczba zgłoszeń w systemie
         std::uint64_t max_requests;
 
         std::array<double, PROBABILITY_COUNT> probabilities = {0.0, 0.0, 0.0};
-        /// [𝑝] ???
-        float p = 0;
+        /// [𝑝] Względna intensywność obsługi
+        double relative_service_intensity = 0;
         double average_queue_length = 0;
         double average_occupied_service_channels = 0;
         double absolute_ability_to_operate = 0;

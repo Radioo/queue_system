@@ -13,11 +13,12 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input1_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input1_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_float_input_validator(&input1_value));
+                                  get_float_input_validator(&input1_value));
     input1_input->SetValue("2");
     input1_sizer->Add(input1_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
-    auto* input1_text = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("[λ] Intensywność strumienia zgłoszeń"),
+    auto* input1_text = new wxStaticText(app_panel, wxID_ANY,
+                                         wxString::FromUTF8("[λ] Intensywność strumienia zgłoszeń"),
                                          wxDefaultPosition, wxDefaultSize, 0);
     input1_text->Wrap(-1);
     input1_sizer->Add(input1_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
@@ -27,7 +28,7 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input2_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input2_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_float_input_validator(&input2_value));
+                                  get_float_input_validator(&input2_value));
     input2_input->SetValue("2");
     input2_sizer->Add(input2_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
@@ -41,7 +42,7 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input3_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input3_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_uint_input_validator(&input3_value));
+                                  get_uint_input_validator(&input3_value));
     input3_input->SetValue("2");
     input3_sizer->Add(input3_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
@@ -55,7 +56,7 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     auto* input4_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input4_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
-                                        get_uint_input_validator(&input4_value));
+                                  get_uint_input_validator(&input4_value));
     input4_input->SetValue("5");
     input4_sizer->Add(input4_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
@@ -97,22 +98,23 @@ wxIntegerValidator<std::uint64_t> queue_system::frame::main::get_uint_input_vali
 
 void queue_system::frame::main::add_initial_data_values() const {
     static std::map<model::data_type, std::tuple<std::string, std::string>> initial_items = {
-        {model::data_type::PROBABILITY_P0,                     {"Prawdopodobieństwo p0",                         "0"}},
-        {model::data_type::PROBABILITY_P1,                     {"Prawdopodobieństwo p1",                         "0"}},
-        {model::data_type::PROBABILITY_P2,                     {"Prawdopodobieństwo p2",                         "0"}},
-        {model::data_type::PROBABILITY_P3,                     {"Prawdopodobieństwo p3",                         "0"}},
-        {model::data_type::PROBABILITY_P4,                     {"Prawdopodobieństwo p4",                         "0"}},
-        {model::data_type::PROBABILITY_P5,                     {"Prawdopodobieństwo p5",                         "0"}},
-        {model::data_type::AVERAGE_QUEUE_LENGTH,               {"Średnia ilość zgłoszeń oczekujących w kolejce", "0"}},
-        {model::data_type::AVERAGE_OCCUPIED_SERVICE_CHANNELS,  {"Średnia ilość zajętych kanałów obsługi",        "0"}},
-        {model::data_type::ABSOLUTE_ABILITY_TO_OPERATE,        {"Bezwzględną zdolność obsługi systemu",          "0"}},
-        {model::data_type::AVERAGE_APPLICATIONS,               {"Średnia ilość zgłoszeń",                        "0"}},
-        {model::data_type::AVERAGE_APPLICATION_TIME_IN_SYSTEM, {"Średni czas przebywania zgłoszeń w systemie",   "0"}},
-        {model::data_type::AVERAGE_APPLICATION_TIME_IN_QUEUE, {"Średni czas przebywania zgłoszeń w kolejce",   "0"}},
+            {model::data_type::RELATIVE_SERVICE_INTENSITY,         {"Względna intensywność obsługi",                  "0"}},
+            {model::data_type::PROBABILITY_P0,                     {"Prawdopodobieństwo p0",                         "0"}},
+            {model::data_type::PROBABILITY_P1,                     {"Prawdopodobieństwo p1",                         "0"}},
+            {model::data_type::PROBABILITY_P2,                     {"Prawdopodobieństwo p2",                         "0"}},
+            {model::data_type::PROBABILITY_P3,                     {"Prawdopodobieństwo p3",                         "0"}},
+            {model::data_type::PROBABILITY_P4,                     {"Prawdopodobieństwo p4",                         "0"}},
+            {model::data_type::PROBABILITY_P5,                     {"Prawdopodobieństwo p5",                         "0"}},
+            {model::data_type::AVERAGE_QUEUE_LENGTH,               {"Średnia ilość zgłoszeń oczekujących w kolejce", "0"}},
+            {model::data_type::AVERAGE_OCCUPIED_SERVICE_CHANNELS,  {"Średnia ilość zajętych kanałów obsługi",        "0"}},
+            {model::data_type::ABSOLUTE_ABILITY_TO_OPERATE,        {"Bezwzględną zdolność obsługi systemu",          "0"}},
+            {model::data_type::AVERAGE_APPLICATIONS,               {"Średnia ilość zgłoszeń",                        "0"}},
+            {model::data_type::AVERAGE_APPLICATION_TIME_IN_SYSTEM, {"Średni czas przebywania zgłoszeń w systemie",   "0"}},
+            {model::data_type::AVERAGE_APPLICATION_TIME_IN_QUEUE,  {"Średni czas przebywania zgłoszeń w kolejce",    "0"}},
     };
 
 
-    for(const auto& value : initial_items | std::views::values) {
+    for (const auto& value: initial_items | std::views::values) {
         wxVector<wxVariant> data;
         data.push_back(wxVariant(wxString::FromUTF8(std::get<0>(value))));
         data.push_back(wxVariant(wxString::FromUTF8(std::get<1>(value))));
@@ -130,6 +132,7 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
     queue.calculate();
 
     const auto& probabilities = queue.get_probabilities();
+    set_data_value(model::data_type::RELATIVE_SERVICE_INTENSITY, queue.get_relative_service_intensity());
     set_data_value(model::data_type::PROBABILITY_P0, probabilities[0]);
     set_data_value(model::data_type::PROBABILITY_P1, probabilities[1]);
     set_data_value(model::data_type::PROBABILITY_P2, probabilities[2]);
@@ -140,7 +143,8 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
     set_data_value(model::data_type::AVERAGE_OCCUPIED_SERVICE_CHANNELS, queue.get_average_occupied_service_channels());
     set_data_value(model::data_type::ABSOLUTE_ABILITY_TO_OPERATE, queue.get_absolute_ability_to_operate());
     set_data_value(model::data_type::AVERAGE_APPLICATIONS, queue.get_average_applications());
-    set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_SYSTEM, queue.get_average_application_time_in_system());
+    set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_SYSTEM,
+                   queue.get_average_application_time_in_system());
     set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_QUEUE, queue.get_average_application_time_in_queue());
 }
 
