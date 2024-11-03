@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 26)
 
 find_package(wxWidgets CONFIG REQUIRED)
 find_package(boost_math REQUIRED CONFIG)
+find_package(QuantLib CONFIG REQUIRED)
 
 file(GLOB_RECURSE sources src/*.cpp)
 
@@ -17,7 +18,7 @@ endif()
 target_include_directories(queue_system PRIVATE
         src
 )
-target_link_libraries(queue_system PRIVATE wx::core Boost::math)
+target_link_libraries(queue_system PRIVATE wx::core Boost::math QuantLib::QuantLib)
 
 if(UNIX)
     target_link_libraries(queue_system PRIVATE X11)

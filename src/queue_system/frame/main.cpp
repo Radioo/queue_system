@@ -1,6 +1,8 @@
 #include <map>
 #include <ranges>
 
+#include <wx/statline.h>
+#include <queue_system/lib/fireflyalgorithm.hpp>
 #include "queue_system/frame/main.hpp"
 #include "queue_system/model/data_type_col.hpp"
 
@@ -8,7 +10,10 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
                                             wxSize(600, 800)) {
     app_panel = new wxPanel(this, wxID_ANY);
 
+    auto* main_sizer = new wxBoxSizer(wxHORIZONTAL);
+
     auto* outer_sizer = new wxBoxSizer(wxVERTICAL);
+    auto* right_vsizer = new wxBoxSizer(wxVERTICAL);
 
     auto* input1_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -84,7 +89,88 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
 
     add_initial_data_values();
 
-    app_panel->SetSizer(outer_sizer);
+
+    auto* function_value_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* function_value_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("Wartość funkcji celu:"),wxDefaultPosition, wxDefaultSize, 0);
+    function_value_text->Wrap(-1);
+    function_value_sizer->Add(function_value_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    function_value = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,get_float_input_validator(&float_function_value));
+    function_value->SetValue("10");
+    function_value_sizer->Add(function_value, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    right_vsizer->Add(function_value_sizer, 0, wxEXPAND, 5);
+
+
+    auto* title_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("Parametry algorytmu świetlika:"),wxDefaultPosition, wxDefaultSize, 0);
+    right_vsizer->Add(title_text, 0, wxALL, 5);
+
+    auto* population_size_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* population_size_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("population_size"),wxDefaultPosition, wxDefaultSize, 0);
+    population_size_text->Wrap(-1);
+    population_size = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,get_float_input_validator(&population_size_value));
+    population_size->SetValue("0");
+    population_size_sizer->Add(population_size, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    population_size_sizer->Add(population_size_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    right_vsizer->Add(population_size_sizer, 0, wxEXPAND, 5);
+
+    auto* subpopulation_size_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* subpopulation_size_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("subpopulation_size"),wxDefaultPosition, wxDefaultSize, 0);
+    subpopulation_size_text->Wrap(-1);
+    subpopulation_size = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,get_float_input_validator(&subpopulation_size_value));
+    subpopulation_size->SetValue("0");
+    subpopulation_size_sizer->Add(subpopulation_size, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    subpopulation_size_sizer->Add(subpopulation_size_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    right_vsizer->Add(subpopulation_size_sizer, 0, wxEXPAND, 5);
+
+    auto* mutation_factor_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* mutation_factor_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("mutation_factor"),wxDefaultPosition, wxDefaultSize, 0);
+    mutation_factor_text->Wrap(-1);
+    mutation_factor = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,get_float_input_validator(&mutation_factor_value));
+    mutation_factor->SetValue("0");
+    mutation_factor_sizer->Add(mutation_factor, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    mutation_factor_sizer->Add(mutation_factor_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    right_vsizer->Add(mutation_factor_sizer, 0, wxEXPAND, 5);
+
+    auto* crossover_factor_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* crossover_factor_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("crossover_factor"),wxDefaultPosition, wxDefaultSize, 0);
+    crossover_factor_text->Wrap(-1);
+    crossover_factor = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,get_float_input_validator(&crossover_factor_value));
+    crossover_factor->SetValue("0");
+    crossover_factor_sizer->Add(crossover_factor, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    crossover_factor_sizer->Add(crossover_factor_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    right_vsizer->Add(crossover_factor_sizer, 0, wxEXPAND, 5);
+
+    auto* random_seed_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* random_seed_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("random_seed"),wxDefaultPosition, wxDefaultSize, 0);
+    random_seed_text->Wrap(-1);
+    random_seed = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,get_float_input_validator(&random_seed_value));
+    random_seed->SetValue("0");
+    random_seed_sizer->Add(random_seed, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    random_seed_sizer->Add(random_seed_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    right_vsizer->Add(random_seed_sizer, 0, wxEXPAND, 5);
+
+
+
+    auto* optimize_button = new wxButton(app_panel, wxID_ANY, wxString::FromUTF8("Optymalizuj m"));
+    optimize_button->Bind(wxEVT_BUTTON, &main::on_optimize, this);
+    right_vsizer->Add(optimize_button, 0, wxEXPAND , 5);
+
+    progress_bar = new wxGauge(app_panel, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL);
+    right_vsizer->Add(progress_bar, 0, wxEXPAND | wxALL, 5);
+    progress_bar->SetValue(0);
+
+    auto* result_optimize_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* text_optimize = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8("m ="),wxDefaultPosition, wxDefaultSize, 0);
+    result_text = new wxStaticText(app_panel, wxID_ANY,wxString::FromUTF8(""),wxDefaultPosition, wxDefaultSize, 0);
+
+    result_optimize_sizer->Add(text_optimize, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    result_optimize_sizer->Add(result_text, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+
+    right_vsizer->Add(result_optimize_sizer, 0, wxEXPAND, 5);
+
+    main_sizer->Add(outer_sizer, 1, wxEXPAND, 0);
+    main_sizer->Add(right_vsizer, 1, wxEXPAND, 0);
+
+    app_panel->SetSizer(main_sizer);
     app_panel->Layout();
 }
 
@@ -147,6 +233,61 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
                    queue.get_average_application_time_in_system());
     set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_QUEUE, queue.get_average_application_time_in_queue());
 }
+
+double objectiveFunction(queue_system::calc::queue& queue, double target) {
+    queue.calculate();
+    double averageWaitTime = queue.get_average_application_time_in_queue();
+    return std::abs(averageWaitTime - target);
+}
+
+void queue_system::frame::main::on_optimize(wxCommandEvent& event) {
+    progress_bar->SetValue(0);
+
+    QuantLib::Size M = 50;
+    QuantLib::Real beta0 = 1.0;
+    QuantLib::Real betaMin = 0.2;
+    QuantLib::Real gamma = 0.5;
+
+    auto intensity = QuantLib::ext::make_shared<QuantLib::ExponentialIntensity>(beta0, betaMin, gamma);
+    QuantLib::Real sigma = 0.1;
+    auto randomWalk = QuantLib::ext::make_shared<QuantLib::GaussianWalk>(sigma);
+    QuantLib::FireflyAlgorithm firefly(M, intensity, randomWalk);
+
+    wxString valueStr = function_value->GetValue();
+    double value;
+    if (!valueStr.ToDouble(&value)) {
+        value = 1;
+    }
+
+    auto func = [&](int m) {
+        queue.set_service_channels(static_cast<std::uint64_t>(m));
+
+        queue.set_stream_intensity(std::stof(input1_input->GetValue().ToStdString()));
+        queue.set_average_service_intensity(std::stof(input2_input->GetValue().ToStdString()));
+        queue.set_max_requests(std::stoull(input4_input->GetValue().ToStdString()));
+
+        return objectiveFunction(queue, value);
+    };
+
+    int minM = 1;
+    int maxM = 100;
+    int optimalM = minM;
+    double bestObjectiveValue = func(optimalM);
+
+    for (int m = minM + 1; m <= maxM; ++m) {
+        double currentObjectiveValue = func(m);
+        if (currentObjectiveValue < bestObjectiveValue) {
+            bestObjectiveValue = currentObjectiveValue;
+            optimalM = m;
+        }
+    }
+
+    std::cout << "Optimal number (m): " << optimalM << std::endl;
+    //result_text->SetLabel(wxString::FromUTF8(function_value->GetValue()));
+    progress_bar->SetValue(100);
+}
+
+
 
 void queue_system::frame::main::set_data_value(model::data_type data_type, const double value) const {
     const auto row = static_cast<int>(data_type);

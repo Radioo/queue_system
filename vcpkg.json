@@ -10,6 +10,10 @@
         {
             "name": "boost-math",
             "version>=": "1.86.0"
+        },
+        {
+            "name": "quantlib",
+            "version>=": "1.36"
         }
     ]
 }
