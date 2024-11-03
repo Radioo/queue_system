@@ -291,7 +291,14 @@ void queue_system::frame::main::on_optimize(wxCommandEvent& event) {
     firefly.setMinM(static_cast<int>(minM_value));
     firefly.setMaxM(static_cast<int>(maxM_value));
 
+    queue.set_stream_intensity(std::stof(input1_input->GetValue().ToStdString()));
+    queue.set_average_service_intensity(std::stof(input2_input->GetValue().ToStdString()));
+    queue.set_service_channels(std::stoull(input3_input->GetValue().ToStdString()));
+    queue.set_max_requests(std::stoull(input4_input->GetValue().ToStdString()));
+    queue.calculate();
 
+    firefly.optimize(queue);
+    progress_bar->SetValue(100);
 }
 
 

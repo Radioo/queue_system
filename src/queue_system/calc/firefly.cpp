@@ -45,27 +45,42 @@ namespace queue_system::firefly {
     }
 
     int Firefly::optimize(queue_system::calc::queue& queue) {
-        auto intensity = QuantLib::ext::make_shared<QuantLib::ExponentialIntensity>(initialAttractiveness, minimumAttractiveness, lightAbsorptionCoefficient);
-        auto randomWalk = QuantLib::ext::make_shared<QuantLib::GaussianWalk>(standardDeviationForTheGaussianWalk);
-        QuantLib::FireflyAlgorithm firefly(populationSize, intensity, randomWalk);
+        try {
+            auto intensity = QuantLib::ext::make_shared<QuantLib::ExponentialIntensity>(
+                initialAttractiveness,
+                minimumAttractiveness,
+                lightAbsorptionCoefficient
+            );
+            auto randomWalk = QuantLib::ext::make_shared<QuantLib::GaussianWalk>(standardDeviationForTheGaussianWalk);
 
-        auto func = [&](int m) {
-            queue.set_service_channels(static_cast<std::uint64_t>(m));
-            return objectiveFunction(queue);
-        };
+            QuantLib::FireflyAlgorithm firefly(populationSize, intensity, randomWalk);
 
-        int optimalM = minM;
-        double bestObjectiveValue = func(optimalM);
+            int optimalM = minM;
+            double bestObjectiveValue = objectiveFunction(queue);
 
-        for (int m = minM + 1; m <= maxM; ++m) {
-            double currentObjectiveValue = func(m);
-            if (currentObjectiveValue < bestObjectiveValue) {
-                bestObjectiveValue = currentObjectiveValue;
-                optimalM = m;
+            for (int m = minM; m <= maxM; ++m) {
+                if (m < 0) {
+                    std::cerr << "Invalid service channel value: " << m << std::endl;
+                    continue;
+                }
+                queue.set_service_channels(static_cast<std::uint64_t>(m));
+
+                double currentObjectiveValue = objectiveFunction(queue);
+
+                if (currentObjectiveValue < bestObjectiveValue) {
+                    bestObjectiveValue = currentObjectiveValue;
+                    optimalM = m;
+                }
             }
-        }
 
-        std::cout << "Optimal number of servers (m): " << optimalM << std::endl;
-        return optimalM;
+            std::cout << "Optimal number of servers (m): " << optimalM << std::endl;
+            return optimalM;
+        } catch (const std::exception& e) {
+            std::cerr << "Exception: " << e.what() << std::endl;
+            return -1;
+        } catch (...) {
+            std::cerr << "Unhandled exception occurred!" << std::endl;
+            return -1;
+        }
     }
 }
