@@ -4,6 +4,7 @@
 #include <wx/valnum.h>
 #include <wx/dataview.h>
 
+#include "queue_system/calc/firefly.hpp"
 #include "queue_system/calc/queue.hpp"
 #include "queue_system/model/data_type.hpp"
 
@@ -20,12 +21,13 @@ namespace queue_system::frame {
         wxTextCtrl* input3_input;
         wxTextCtrl* input4_input;
 
-        wxTextCtrl* function_value;
         wxTextCtrl* population_size;
-        wxTextCtrl* subpopulation_size;
-        wxTextCtrl* mutation_factor;
-        wxTextCtrl* crossover_factor;
-        wxTextCtrl* random_seed;
+        wxTextCtrl* InitialAttractiveness;
+        wxTextCtrl* MinimumAttractiveness;
+        wxTextCtrl* LightAbsorptionCoefficient;
+        wxTextCtrl* StandardDeviationForTheGaussianWalk;
+        wxTextCtrl* MinM;
+        wxTextCtrl* MaxM;
 
         wxGauge* progress_bar;
         wxStaticText* result_text;
@@ -45,6 +47,7 @@ namespace queue_system::frame {
         float random_seed_value = 0;
 
         calc::queue queue = {0, 0, 0, 0};
+        queue_system::firefly::Firefly firefly;
 
         static wxFloatingPointValidator<float> get_float_input_validator(float* input);
         static wxIntegerValidator<std::uint64_t> get_uint_input_validator(std::uint64_t* input);
