@@ -5,11 +5,13 @@
 #include "queue_system/model/data_type_col.hpp"
 
 queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy M/M/m/FiFo/N/F", wxDefaultPosition,
-                                            wxSize(600, 800)) {
+                                            wxSize(800, 800)) {
     app_panel = new wxPanel(this, wxID_ANY);
 
     auto* outer_sizer = new wxBoxSizer(wxVERTICAL);
-
+    auto* analysis_sizer = new wxBoxSizer(wxVERTICAL);
+    auto* optimization_sizer = new wxBoxSizer(wxVERTICAL);
+    auto* top_sizer = new wxBoxSizer(wxHORIZONTAL);
     auto* input1_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     input1_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
@@ -23,7 +25,7 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     input1_text->Wrap(-1);
     input1_sizer->Add(input1_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
-    outer_sizer->Add(input1_sizer, 0, wxEXPAND, 5);
+    analysis_sizer->Add(input1_sizer, 0, wxEXPAND, 5);
 
     auto* input2_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -37,7 +39,7 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     input2_text->Wrap(-1);
     input2_sizer->Add(input2_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
-    outer_sizer->Add(input2_sizer, 0, wxEXPAND, 5);
+    analysis_sizer->Add(input2_sizer, 0, wxEXPAND, 5);
 
     auto* input3_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -51,7 +53,7 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
     input3_text->Wrap(-1);
     input3_sizer->Add(input3_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
-    outer_sizer->Add(input3_sizer, 0, wxEXPAND, 5);
+    analysis_sizer->Add(input3_sizer, 0, wxEXPAND, 5);
 
     auto* input4_sizer = new wxBoxSizer(wxHORIZONTAL);
 
@@ -64,14 +66,96 @@ queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy
                                          wxDefaultPosition, wxDefaultSize, 0);
     input4_text->Wrap(-1);
     input4_sizer->Add(input4_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    analysis_sizer->Add(input4_sizer, 0, wxEXPAND, 5);
 
-    outer_sizer->Add(input4_sizer, 0, wxEXPAND, 5);
+    auto* cost_1_sizer = new wxBoxSizer(wxHORIZONTAL);
+    cost_1_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
+                                  get_float_input_validator(&cost_1_value));
+    cost_1_input->SetValue("100");
+    cost_1_sizer->Add(cost_1_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    auto* cost_1_text = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("Koszt c1"), wxDefaultPosition,
+                                         wxDefaultSize, 0);
+    cost_1_text->Wrap(-1);
+    cost_1_sizer->Add(cost_1_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    analysis_sizer->Add(cost_1_sizer, 0, wxEXPAND, 5);
+
+    auto* cost_2_sizer = new wxBoxSizer(wxHORIZONTAL);
+    cost_2_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
+                                  get_float_input_validator(&cost_2_value));
+    cost_2_input->SetValue("200");
+    cost_2_sizer->Add(cost_2_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    auto* cost_2_text = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("Koszt c2"), wxDefaultPosition,
+                                         wxDefaultSize, 0);
+    cost_2_sizer->Add(cost_2_text, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    analysis_sizer->Add(cost_2_sizer, 0, wxEXPAND, 5);
+
+    top_sizer->Add(analysis_sizer, 1, wxEXPAND, 5);
+
+    auto* objective_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* objective_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("Wartość funkcji celu:"),
+                                             wxDefaultPosition, wxDefaultSize, 0);
+    auto font = objective_label->GetFont();
+    font.SetWeight(wxFONTWEIGHT_BOLD);
+    objective_label->SetFont(font);
+    objective_value_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("0"),
+                                                   wxDefaultPosition, wxDefaultSize, 0);
+    objective_sizer->Add(objective_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    objective_sizer->Add(objective_value_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+
+    auto* max_iterations_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* max_iterations_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("Maksymalna liczba iteracji"),
+                                             wxDefaultPosition, wxDefaultSize, 0);
+    max_iterations_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
+                                  get_uint_input_validator(&max_iterations_value));
+    max_iterations_input->SetValue("5000");
+    max_iterations_sizer->Add(max_iterations_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    max_iterations_sizer->Add(max_iterations_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+
+    auto* firefly_count_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* firefly_count_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("Liczba świetlików"),
+                                             wxDefaultPosition, wxDefaultSize, 0);
+    firefly_count_input = new wxTextCtrl(app_panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_RIGHT,
+                                  get_uint_input_validator(&firefly_count_value));
+    firefly_count_input->SetValue("40");
+    firefly_count_sizer->Add(firefly_count_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    firefly_count_sizer->Add(firefly_count_input, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+
+    // auto* exact_optimization_sizer = new wxBoxSizer(wxHORIZONTAL);
+    // auto* exact_optimization_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("Dokładna optymalna wartość m:"),
+    //                                                   wxDefaultPosition, wxDefaultSize, 0);
+    // exact_optimization_value_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("0"),
+    //                                                   wxDefaultPosition, wxDefaultSize, 0);
+    // exact_optimization_sizer->Add(exact_optimization_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    // exact_optimization_sizer->Add(exact_optimization_value_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+
+    auto* rounded_optimization_sizer = new wxBoxSizer(wxHORIZONTAL);
+    auto* rounded_optimization_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("Optymalna wartość m:"),
+                                                      wxDefaultPosition, wxDefaultSize, 0);
+    rounded_optimization_value_label = new wxStaticText(app_panel, wxID_ANY, wxString::FromUTF8("0"),
+                                                      wxDefaultPosition, wxDefaultSize, 0);
+    rounded_optimization_sizer->Add(rounded_optimization_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    rounded_optimization_sizer->Add(rounded_optimization_value_label, 0, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+
+    optimization_sizer->Add(objective_sizer, 0, wxEXPAND, 5);
+    // optimization_sizer->Add(exact_optimization_sizer, 0, wxEXPAND, 5);
+    optimization_sizer->Add(rounded_optimization_sizer, 0, wxEXPAND, 5);
+    optimization_sizer->Add(max_iterations_sizer, 0, wxEXPAND, 5);
+    optimization_sizer->Add(firefly_count_sizer, 0, wxEXPAND, 5);
+
+    top_sizer->Add(optimization_sizer, 1, wxEXPAND, 5);
+
+    outer_sizer->Add(top_sizer, 0, wxEXPAND, 5);
 
     auto* buttons_sizer = new wxBoxSizer(wxHORIZONTAL);
 
     auto* analyze_button = new wxButton(app_panel, wxID_ANY, wxString::FromUTF8("Analizuj"));
     analyze_button->Bind(wxEVT_BUTTON, &main::on_analyze, this);
+
+    auto* optimize_button = new wxButton(app_panel, wxID_ANY, wxString::FromUTF8("Optymalizuj"));
+    optimize_button->Bind(wxEVT_BUTTON, &main::on_optimize, this);
+
     buttons_sizer->Add(analyze_button, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
+    buttons_sizer->Add(optimize_button, 1, wxALL | wxALIGN_CENTER_VERTICAL, 5);
 
     outer_sizer->Add(buttons_sizer, 0, wxEXPAND, 5);
 
@@ -128,8 +212,16 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
     queue.set_average_service_intensity(std::stof(input2_input->GetValue().ToStdString()));
     queue.set_service_channels(std::stoull(input3_input->GetValue().ToStdString()));
     queue.set_max_requests(std::stoull(input4_input->GetValue().ToStdString()));
+    queue.set_cost_1(std::stod(cost_1_input->GetValue().ToStdString()));
+    queue.set_cost_2(std::stod(cost_2_input->GetValue().ToStdString()));
 
-    queue.calculate();
+    try {
+        queue.calculate();
+    }
+    catch(std::exception& e) {
+        wxMessageBox("Błąd podczas obliczeń: " + wxString::FromUTF8(e.what()), "Błąd", wxICON_ERROR);
+        return;
+    }
 
     const auto& probabilities = queue.get_probabilities();
     set_data_value(model::data_type::RELATIVE_SERVICE_INTENSITY, queue.get_relative_service_intensity());
@@ -146,6 +238,23 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
     set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_SYSTEM,
                    queue.get_average_application_time_in_system());
     set_data_value(model::data_type::AVERAGE_APPLICATION_TIME_IN_QUEUE, queue.get_average_application_time_in_queue());
+
+    objective_value_label->SetLabel(std::to_string(queue.get_objective_function_value()));
+}
+
+void queue_system::frame::main::on_optimize(wxCommandEvent& event) {
+    queue.set_max_iterations(std::stoull(max_iterations_input->GetValue().ToStdString()));
+    queue.set_firefly_count(std::stoull(firefly_count_input->GetValue().ToStdString()));
+
+    try {
+        queue.optimize();
+
+        // exact_optimization_value_label->SetLabel(wxString::FromUTF8(std::to_string(queue.get_exact_optimized_m()) + " f(m) = " + std::to_string(queue.get_exact_optimized_m_value())));
+        rounded_optimization_value_label->SetLabel(wxString::FromUTF8(std::to_string(queue.get_rounded_optimized_m()) + " f(m) = " + std::to_string(queue.get_rounded_optimized_m_value())));
+    }
+    catch(std::exception& e) {
+        wxMessageBox("Błąd podczas optymalizacji: " + wxString::FromUTF8(e.what()), "Błąd", wxICON_ERROR);
+    }
 }
 
 void queue_system::frame::main::set_data_value(model::data_type data_type, const double value) const {

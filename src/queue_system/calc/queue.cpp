@@ -1,12 +1,25 @@
-#include <boost/math/special_functions/factorials.hpp>
+#include <boost/math/special_functions/binomial.hpp>
 #include <cmath>
+#include <ql/math/optimization/constraint.hpp>
+#include <ql/experimental/math/fireflyalgorithm.hpp>
 
 #include "queue_system/calc/queue.hpp"
+#include "queue_system/calc/objective.hpp"
 
-queue_system::calc::queue::queue(const float stream_intensity, const float average_service_intensity,
-                                 const std::uint64_t service_channels, const std::uint64_t max_requests):
-    stream_intensity(stream_intensity), average_service_intensity(average_service_intensity),
-    service_channels(service_channels), max_requests(max_requests) {}
+queue_system::calc::queue::queue(
+    const float stream_intensity,
+    const float average_service_intensity,
+    const std::uint64_t service_channels,
+    const std::uint64_t max_requests,
+    const double cost_1,
+    const double cost_2
+):
+    stream_intensity(stream_intensity),
+    average_service_intensity(average_service_intensity),
+    service_channels(service_channels),
+    max_requests(max_requests),
+    cost_1(cost_1),
+    cost_2(cost_2) {}
 
 void queue_system::calc::queue::set_stream_intensity(const float value) {
     stream_intensity = value;
@@ -24,6 +37,22 @@ void queue_system::calc::queue::set_max_requests(const std::uint64_t value) {
     max_requests = value;
 }
 
+void queue_system::calc::queue::set_cost_1(const double value) {
+    cost_1 = value;
+}
+
+void queue_system::calc::queue::set_cost_2(const double value) {
+    cost_2 = value;
+}
+
+void queue_system::calc::queue::set_max_iterations(const std::uint64_t value) {
+    max_iterations = value;
+}
+
+void queue_system::calc::queue::set_firefly_count(const std::uint64_t value) {
+    firefly_count = value;
+}
+
 void queue_system::calc::queue::calculate() {
     relative_service_intensity = stream_intensity / average_service_intensity;
 
@@ -34,9 +63,72 @@ void queue_system::calc::queue::calculate() {
     calculate_average_applications();
     calculate_average_application_time_in_system();
     calculate_average_application_time_in_queue();
+    calculate_objective_function_value();
 }
 
-const std::array<double, queue_system::calc::queue::PROBABILITY_COUNT>& queue_system::calc::queue::get_probabilities() const {
+void queue_system::calc::queue::optimize() {
+    QuantLib::BoundaryConstraint constraint(
+        1,
+        static_cast<double>(max_requests)
+    );
+
+    const QuantLib::Array start(1, 1);
+    QuantLib::Real vola = 1.5;
+    QuantLib::Real intense = 1.0;
+    auto seed = 127;
+    const auto intensity = QuantLib::ext::make_shared<QuantLib::ExponentialIntensity>(10.0, 1e-8, intense);
+    const auto walk = QuantLib::ext::make_shared<QuantLib::LevyFlightWalk>(vola, 0.1, 1.0, seed);
+    objective objective_function(
+        max_requests,
+        cost_1,
+        cost_2,
+        relative_service_intensity
+    );
+
+    QuantLib::FireflyAlgorithm algorithm(
+        firefly_count,
+        intensity,
+        walk,
+        40
+    );
+
+    const QuantLib::EndCriteria end_criteria(
+        max_iterations,
+        1000,
+        1.0e-8,
+        1.0e-8,
+        1.0e-8
+    );
+
+    QuantLib::Problem problem(objective_function, constraint, start);
+
+    algorithm.minimize(problem, end_criteria);
+
+    auto result = problem.currentValue();
+    auto value = result[0];
+
+    exact_optimized_m = value;
+    exact_optimized_m_value = objective_function.value(result);
+
+    if(const auto low_value = std::floor(value); value != low_value) {
+        const auto high_value = std::ceil(value);
+        const auto low_result = QuantLib::Array(1, low_value);
+
+        if(const auto high_result = QuantLib::Array(1, high_value); objective_function.value(low_result) > objective_function.value(high_result)) {
+            result = high_result;
+            value = high_value;
+        }
+        else {
+            result = low_result;
+            value = low_value;
+        }
+    }
+
+    rounded_optimized_m = value;
+    rounded_optimized_m_value = objective_function.value(result);
+}
+
+const std::vector<double>& queue_system::calc::queue::get_probabilities() const {
     return probabilities;
 }
 
@@ -46,9 +138,11 @@ double queue_system::calc::queue::get_average_queue_length() const {
 
 void queue_system::calc::queue::calculate_probabilities() {
     const auto N_fact = boost::math::factorial<double>(max_requests);
+    const auto probability_count = max_requests + 2;
+    probabilities.resize(probability_count);
     calculate_p0_probability(N_fact);
 
-    for(auto i = 1; i < PROBABILITY_COUNT; i++) {
+    for(auto i = 1; i < max_requests + 2; i++) {
         if(i >= 1 && i <= service_channels) {
             probabilities[i] = calculate_less_or_equal_m_probability(i, N_fact);
         }
@@ -93,7 +187,7 @@ double queue_system::calc::queue::calculate_less_or_equal_m_probability(const st
     return N_fact / (i_fact * N_minus_i_fact) * p_to_i_fact * probabilities[0];
 }
 
-double queue_system::calc::queue::calculate_more_than_m_probability(std::uint64_t i, double N_fact) const {
+double queue_system::calc::queue::calculate_more_than_m_probability(const std::uint64_t i, const double N_fact) const {
     const auto m_fact = boost::math::factorial<double>(service_channels);
     const auto m_to_i_minus_m = std::pow(service_channels, i - service_channels);
     const auto N_minus_i_fact = boost::math::factorial<double>(max_requests - i);
@@ -157,8 +251,32 @@ void queue_system::calc::queue::calculate_average_application_time_in_queue() {
     average_application_time_in_queue = average_application_time_in_system - (1 / average_service_intensity);
 }
 
+void queue_system::calc::queue::calculate_objective_function_value() {
+    objective_function_value = cost_1 * static_cast<double>(service_channels) + cost_2 * average_applications;
+}
+
 double queue_system::calc::queue::get_average_application_time_in_queue() const {
     return average_application_time_in_queue;
+}
+
+double queue_system::calc::queue::get_objective_function_value() const {
+    return objective_function_value;
+}
+
+double queue_system::calc::queue::get_exact_optimized_m() const {
+    return exact_optimized_m;
+}
+
+double queue_system::calc::queue::get_rounded_optimized_m() const {
+    return rounded_optimized_m;
+}
+
+double queue_system::calc::queue::get_exact_optimized_m_value() const {
+    return exact_optimized_m_value;
+}
+
+double queue_system::calc::queue::get_rounded_optimized_m_value() const {
+    return rounded_optimized_m_value;
 }
 
 double queue_system::calc::queue::get_relative_service_intensity() const {

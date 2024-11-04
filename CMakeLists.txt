@@ -3,8 +3,18 @@ PROJECT(queue_system)
 
 set(CMAKE_CXX_STANDARD 26)
 
+if(WIN32)
+    # Set runtime library for each configuration
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")  # Use for static runtime in Debug
+    set(CMAKE_CXX_FLAGS_DEBUG "/MTd")  # Debug flags
+
+    #set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")  # Use for static runtime in Release
+    #set(CMAKE_CXX_FLAGS_RELEASE "/MT")  # Release flags
+endif()
+
 find_package(wxWidgets CONFIG REQUIRED)
 find_package(boost_math REQUIRED CONFIG)
+find_package(QuantLib CONFIG REQUIRED)
 
 file(GLOB_RECURSE sources src/*.cpp)
 
@@ -17,7 +27,7 @@ endif()
 target_include_directories(queue_system PRIVATE
         src
 )
-target_link_libraries(queue_system PRIVATE wx::core Boost::math)
+target_link_libraries(queue_system PRIVATE wx::core Boost::math QuantLib::QuantLib)
 
 if(UNIX)
     target_link_libraries(queue_system PRIVATE X11)
