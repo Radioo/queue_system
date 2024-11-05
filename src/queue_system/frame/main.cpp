@@ -5,7 +5,7 @@
 #include "queue_system/model/data_type_col.hpp"
 
 queue_system::frame::main::main() : wxFrame(nullptr, wxID_ANY, "System kolejkowy M/M/m/FiFo/N/F", wxDefaultPosition,
-                                            wxSize(800, 800)) {
+                                            wxSize(1000, 1000)) {
     app_panel = new wxPanel(this, wxID_ANY);
 
     auto* outer_sizer = new wxBoxSizer(wxVERTICAL);
