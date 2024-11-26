@@ -138,7 +138,10 @@ double queue_system::calc::queue::get_average_queue_length() const {
 
 void queue_system::calc::queue::calculate_probabilities() {
     const auto N_fact = boost::math::factorial<double>(max_requests);
-    const auto probability_count = max_requests + 2;
+    auto probability_count = max_requests + 2;
+    if (probability_count < 6) {
+        probability_count = 6;
+    }
     probabilities.resize(probability_count);
     calculate_p0_probability(N_fact);
 

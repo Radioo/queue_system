@@ -223,7 +223,7 @@ void queue_system::frame::main::on_analyze(wxCommandEvent& event) {
         return;
     }
 
-    const auto& probabilities = queue.get_probabilities();
+    auto& probabilities = queue.get_probabilities();
     set_data_value(model::data_type::RELATIVE_SERVICE_INTENSITY, queue.get_relative_service_intensity());
     set_data_value(model::data_type::PROBABILITY_P0, probabilities[0]);
     set_data_value(model::data_type::PROBABILITY_P1, probabilities[1]);
