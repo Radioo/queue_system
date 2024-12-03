@@ -1,4 +1,5 @@
 #include <boost/math/special_functions/binomial.hpp>
+#include <boost/math/special_functions/gamma.hpp>
 #include <cmath>
 #include <ql/math/optimization/constraint.hpp>
 #include <ql/experimental/math/fireflyalgorithm.hpp>
